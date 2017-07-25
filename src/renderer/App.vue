@@ -62,6 +62,7 @@
     color: white;
     background: red;
     user-select: none;
+    cursor: default;
   }
 
   #app.lunch {
