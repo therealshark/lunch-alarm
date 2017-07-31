@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from "electron";
-import schedule from "node-schedule";
+import dateFns from "date-fns";
+
+const maxCheckInterval = 60000;
 
 /**
  * Set `__static` path to static files in production
@@ -12,6 +14,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow;
+let nextTrigger = null;
 const winURL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:9080`
@@ -19,9 +22,38 @@ const winURL =
 
 function main() {
   app.dock.hide();
+  calculateNextTrigger();
+  checkTime();
+}
 
-  const pattern = "30 59 11 * * *";
-  schedule.scheduleJob(pattern, createWindow);
+function calculateNextTrigger() {
+  const current = new Date();
+  // If there's no trigger yet, or it is in the past:
+  if (!dateFns.isDate(nextTrigger) || dateFns.isAfter(current, nextTrigger)) {
+    const triggerToday = dateFns.addMinutes(
+      dateFns.addHours(dateFns.startOfToday(), 11),
+      59
+    );
+    // todays trigger was already
+    if (dateFns.isAfter(current, triggerToday)) {
+      nextTrigger = dateFns.addDays(triggerToday, 1);
+    } else {
+      nextTrigger = triggerToday;
+    }
+  }
+}
+
+function checkTime() {
+  const current = new Date();
+  if (dateFns.isAfter(current, nextTrigger)) {
+    createWindow();
+    calculateNextTrigger();
+  }
+  const nextCheck = Math.min(
+    maxCheckInterval,
+    Math.abs(dateFns.differenceInMilliseconds(current, nextTrigger))
+  );
+  setTimeout(checkTime, nextCheck);
 }
 
 function createWindow() {
