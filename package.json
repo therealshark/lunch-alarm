@@ -1,6 +1,6 @@
 {
   "name": "lunch-alarm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "therealshark",
   "description": "LUNCH ALARM",
   "license": "MIT",
@@ -22,9 +22,7 @@
     "directories": {
       "output": "build"
     },
-    "files": [
-      "dist/electron/**/*"
-    ],
+    "files": ["dist/electron/**/*"],
     "dmg": {
       "contents": [
         {
